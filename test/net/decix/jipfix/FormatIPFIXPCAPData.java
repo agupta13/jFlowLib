@@ -65,10 +65,7 @@ public class FormatIPFIXPCAPData {
 										L2IPDataRecord lidr = (L2IPDataRecord) dr;
 										String out = parseL2IPData(lidr, ANONYMIZE);
 										fileWriter.append(out);
-										
 										System.out.println(lidr);
-										
-										
 									}
 								}
 							}
