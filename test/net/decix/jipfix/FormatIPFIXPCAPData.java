@@ -24,6 +24,7 @@ public class FormatIPFIXPCAPData {
 	private static final String COMMA_DELIMITER = ",";
 	private static final String NEW_LINE_SEPARATOR = "\n";
 	private static FileWriter fileWriter = null;
+	private static final boolean ANONYMIZE = false;
 	
 	
 	public static void main(String[] args) throws PcapNativeException, NotOpenException, InterruptedException {
@@ -62,7 +63,7 @@ public class FormatIPFIXPCAPData {
 								for (DataRecord dr : sh.getDataRecords()) {
 									if (dr instanceof L2IPDataRecord) {
 										L2IPDataRecord lidr = (L2IPDataRecord) dr;
-										String out = parseL2IPData(lidr);
+										String out = parseL2IPData(lidr, ANONYMIZE);
 										fileWriter.append(out);
 										
 										System.out.println(lidr);
@@ -103,7 +104,7 @@ public class FormatIPFIXPCAPData {
 	} 
 		
 
-	protected static String parseL2IPData(L2IPDataRecord lidr) {
+	protected static String parseL2IPData(L2IPDataRecord lidr, boolean ANONYMIZE) {
 		// Format: 
 		// SourceMacAddress, DestinationMacAddress, IngressPhysicalInterface, EgressPhysicalInterface, Dot1qVlanId, Dot1qCustomerVlanId, 
 		// PostDot1qVlanId, PostDot1qCustomerVlanId, SourceIPv4Address, DestinationIPv4Address, SourceIPv6Address, DestinationIPv6Address, 
@@ -120,15 +121,21 @@ public class FormatIPFIXPCAPData {
 		sb.append(String.valueOf(lidr.getProtocolIdentifier()));
 		sb.append(COMMA_DELIMITER);
 		
-		//System.out.println(lidr.getSourceIPv4Address().getHostAddress());
-		
-		sb.append(String.valueOf(lidr.getSourceIPv4Address().getHostAddress()));
+		if (ANONYMIZE){
+			sb.append(String.valueOf(lidr.getSourceIPv4Address().getHostAddress().replaceAll(".\\d{1,3}$", ".1")));			
+		}else {
+			sb.append(String.valueOf(lidr.getSourceIPv4Address().getHostAddress()));
+		}
 		sb.append(COMMA_DELIMITER);
 		
 		sb.append(String.valueOf(lidr.getSourceTransportPort()));
 		sb.append(COMMA_DELIMITER);
 		
-		sb.append(String.valueOf(lidr.getDestinationIPv4Address().getHostAddress()));
+		if (ANONYMIZE){
+			sb.append(String.valueOf(lidr.getDestinationIPv4Address().getHostAddress().replaceAll(".\\d{1,3}$", ".1")));			
+		}else {
+			sb.append(String.valueOf(lidr.getDestinationIPv4Address().getHostAddress()));			
+		}
 		sb.append(COMMA_DELIMITER);
 		
 		sb.append(String.valueOf(lidr.getDestinationTransportPort()));
